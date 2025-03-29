@@ -14,22 +14,28 @@ const Login = () => {
     setError(''); // Clear any previous errors
     
     try {
-      console.log('Attempting login with:', { username }); // Log the attempt
-      const response = await axios.post('http://localhost:5000/validate_login', {
-        username,
-        password
+      console.log('Attempting login with:', { username, password }); // Log the attempt
+      
+      // Use fetch instead of axios as an alternative approach
+      const response = await fetch('http://localhost:5001/validate_login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
       });
       
-      console.log('Server response:', response.data); // Log the response
+      const data = await response.json();
+      console.log('Server response:', data);
       
-      if (response.data.success) {
+      if (data.success) {
         navigate('/predict');
       } else {
-        setError(response.data.message || 'Invalid username or password');
+        setError(data.message || 'Invalid username or password');
       }
     } catch (err) {
-      console.error('Login error:', err); // Log any errors
-      setError(err.response?.data?.message || 'Invalid username or password');
+      console.error('Login error details:', err);
+      setError('Error connecting to server. Please try again.');
     }
   };
 

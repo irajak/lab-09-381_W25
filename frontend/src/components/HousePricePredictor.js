@@ -31,7 +31,7 @@ const HousePricePredictor = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/predict_house_price', formData);
+      const response = await axios.post('http://localhost:5001/predict_house_price', formData);
       setPrediction(response.data.predicted_price);
       setError('');
     } catch (err) {
