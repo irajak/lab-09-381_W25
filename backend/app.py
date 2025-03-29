@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import logging
+import random
 
 app = Flask(__name__)
 # Allow all origins with simpler CORS setup
@@ -67,6 +68,41 @@ def validate_login():
             'success': False,
             'message': str(e)
         }), 500
+
+@app.route('/predict_house_price', methods=['POST', 'OPTIONS'])
+def predict_house_price():
+    if request.method == 'OPTIONS':
+        return '', 200
+        
+    try:
+        data = request.get_json()
+        logging.info(f"Prediction request data: {data}")
+        
+        # Since we don't have the model, generate a random price for demo purposes
+        # In a real app, you would use the model here
+        base_price = 1500
+        # Adjust based on beds and baths if provided
+        beds_factor = float(data.get('beds', 1)) * 200
+        baths_factor = float(data.get('baths', 1)) * 150
+        sqft_factor = float(data.get('sq_feet', 800)) * 0.5
+        
+        # Add some randomness
+        random_factor = random.uniform(0.8, 1.2)
+        
+        # Calculate final price
+        predicted_price = (base_price + beds_factor + baths_factor + sqft_factor) * random_factor
+        
+        logging.info(f"Generated prediction: {predicted_price}")
+        
+        return jsonify({
+            "predicted_price": round(predicted_price, 2)
+        })
+    except Exception as e:
+        logging.error(f"Error in predict_house_price: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 400
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001) 
